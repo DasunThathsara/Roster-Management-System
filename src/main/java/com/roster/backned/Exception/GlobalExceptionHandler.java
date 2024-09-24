@@ -25,11 +25,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(InvalidException.class)
-    public ResponseEntity<String> handleInvalidException(InvalidException e) {
-        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-    }
-
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<String> handleApiException(ApiException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

@@ -4,7 +4,9 @@ import com.roster.backned.Dto.UserDto;
 import com.roster.backned.Entity.User;
 import com.roster.backned.Enumeration.Gender;
 import com.roster.backned.Enumeration.Role;
+import com.roster.backned.Exception.ApiException;
 import com.roster.backned.Exception.NotFoundException;
+import com.roster.backned.Exception.SQLException;
 import com.roster.backned.Exception.UnauthorizedException;
 import com.roster.backned.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +44,8 @@ public class UserService implements UserDetailsService {
         List<User> users = userRepository.findAll();
         List<UserDto> userDtos = new ArrayList<>();
 
+        if (users.isEmpty()) throw new NotFoundException("Users not found");
+
         for (User user : users) {
             UserDto userDto = userToUserDto(user);
             userDtos.add(userDto);
@@ -50,16 +54,36 @@ public class UserService implements UserDetailsService {
     }
 
     public UserDto updateUser(UserDto userDto) {
-        User user = userRepository.findById(userDto.getUserId()).orElseThrow(() -> new NotFoundException("User not found"));
-        userDtoToUser(userDto, user);
-        user = userRepository.save(user);
-        return userToUserDto(user);
+        try {
+            User user = userRepository.findById(userDto.getUserId()).orElseThrow(() -> new NotFoundException("User not found"));
+            userDtoToUser(userDto, user);
+            user = userRepository.save(user);
+
+            log.info("User {} updated successfully", user.getUserId());
+            return userToUserDto(user);
+        } catch (SQLException e) {
+            throw new SQLException(e.getMessage());
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new ApiException(e.getMessage());
+        }
     }
 
     public UserDto deleteUser(long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
-        userRepository.delete(user);
-        return userToUserDto(user);
+        try {
+            User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+            userRepository.delete(user);
+
+            log.info("User {} deleted successfully", user.getUserId());
+            return userToUserDto(user);
+        } catch (SQLException e) {
+            throw new SQLException(e.getMessage());
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new ApiException(e.getMessage());
+        }
     }
 
     private static void userDtoToUser(UserDto userDto, User user) {

@@ -3,6 +3,7 @@ package com.roster.backned.Validation.Impl;
 import com.roster.backned.Validation.ValidPassword;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+
 import java.util.regex.Pattern;
 
 public class PasswordValidator implements ConstraintValidator<ValidPassword, String> {

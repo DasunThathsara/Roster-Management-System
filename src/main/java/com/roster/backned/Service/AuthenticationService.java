@@ -45,6 +45,12 @@ public class AuthenticationService {
     public AuthenticationResponse signup(SignupDto signupDto) {
         try {
             User currentUser = getCurrentUser();
+
+            if(currentUser == null || currentUser.getRole() != Role.ADMIN) {
+                log.warn("Current user is not admin");
+                throw new UnauthorizedException("You are not allowed to sign up");
+            }
+
             User user = mapper.map(signupDto, User.class);
 
             encodePassword(user);
@@ -142,9 +148,9 @@ public class AuthenticationService {
     }
 
     private Role determineUserRole(User currentUser, User user) {
-        Role newRole = Role.GUEST; // Default to GUEST
+        Role newRole = Role.USER; // Default to GUEST
         if (currentUser.getUserId() != 0 && user.getRole() != null) {
-            if (Objects.requireNonNull(currentUser.getRole()) == Role.USER) {
+            if (Objects.requireNonNull(currentUser.getRole()) == Role.ADMIN) {
                 newRole = user.getRole();
             } else {
                 log.warn("Unknown role for current user: {}", currentUser.getRole());

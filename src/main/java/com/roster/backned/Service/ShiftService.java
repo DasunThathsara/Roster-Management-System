@@ -1,12 +1,15 @@
 package com.roster.backned.Service;
 
+import com.roster.backned.Dto.AttendanceDetails;
 import com.roster.backned.Dto.ShiftDto;
 import com.roster.backned.Dto.WeekShiftDto;
 import com.roster.backned.Entity.Roster;
 import com.roster.backned.Entity.Shift;
 import com.roster.backned.Entity.User;
 import com.roster.backned.Enumeration.Duty;
+import com.roster.backned.Exception.ApiException;
 import com.roster.backned.Exception.NotFoundException;
+import com.roster.backned.Exception.SQLException;
 import com.roster.backned.Repository.RosterRepository;
 import com.roster.backned.Repository.ShiftRepository;
 import com.roster.backned.Repository.UserRepository;
@@ -27,10 +30,20 @@ public class ShiftService {
     private final RosterRepository rosterRepository;
 
     public ShiftDto createShift(ShiftDto shiftDto) {
-        Shift shift = new Shift();
-        shiftDtoToShift(shiftDto, shift);
-        shift = shiftRepository.save(shift);
-        return shiftToShiftDto(shift);
+        try {
+            Shift shift = new Shift();
+            shiftDtoToShift(shiftDto, shift);
+            shift = shiftRepository.save(shift);
+
+            log.info("Shift {} added successfully", shift.getId());
+            return shiftToShiftDto(shift);
+        } catch (SQLException e) {
+            throw new SQLException(e.getMessage());
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new ApiException(e.getMessage());
+        }
     }
 
     public ShiftDto getShift(long id) {
@@ -42,6 +55,8 @@ public class ShiftService {
         List<Shift> shifts = shiftRepository.findAll();
         List<ShiftDto> shiftDtos = new ArrayList<>();
 
+        if (shifts.isEmpty()) throw new NotFoundException("Shifts not found");
+
         for (Shift shift : shifts) {
             ShiftDto shiftDto = shiftToShiftDto(shift);
             shiftDtos.add(shiftDto);
@@ -50,16 +65,36 @@ public class ShiftService {
     }
 
     public ShiftDto updateShift(ShiftDto shiftDto) {
-        Shift shift = shiftRepository.findById(shiftDto.getId()).orElseThrow(() -> new NotFoundException("Shift not found"));
-        shiftDtoToShift(shiftDto, shift);
-        shift = shiftRepository.save(shift);
-        return shiftToShiftDto(shift);
+        try {
+            Shift shift = shiftRepository.findById(shiftDto.getId()).orElseThrow(() -> new NotFoundException("Shift not found"));
+            shiftDtoToShift(shiftDto, shift);
+            shift = shiftRepository.save(shift);
+
+            log.info("Shift {} updated successfully", shift.getId());
+            return shiftToShiftDto(shift);
+        } catch (SQLException e) {
+            throw new SQLException(e.getMessage());
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new ApiException(e.getMessage());
+        }
     }
 
     public ShiftDto deleteShift(long id) {
-        Shift shift = shiftRepository.findById(id).orElseThrow(() -> new NotFoundException("Shift not found"));
-        shiftRepository.delete(shift);
-        return shiftToShiftDto(shift);
+        try {
+            Shift shift = shiftRepository.findById(id).orElseThrow(() -> new NotFoundException("Shift not found"));
+            shiftRepository.delete(shift);
+
+            log.info("Shift {} deleted successfully", shift.getId());
+            return shiftToShiftDto(shift);
+        } catch (SQLException e) {
+            throw new SQLException(e.getMessage());
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new ApiException(e.getMessage());
+        }
     }
 
     private void shiftDtoToShift(ShiftDto shiftDto, Shift shift) {
@@ -89,5 +124,9 @@ public class ShiftService {
     public List<WeekShiftDto> getShiftsForWeek(LocalDate date, long restaurantId) {
         LocalDate endDate = date.plusDays(6);
         return shiftRepository.findShiftsByDateRangeAndRestaurant(date, endDate, restaurantId);
+    }
+
+    public List<AttendanceDetails> getAttendance(long id) {
+        return shiftRepository.findShiftsByUserId(id);
     }
 }

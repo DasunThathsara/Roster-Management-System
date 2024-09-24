@@ -1,5 +1,6 @@
 package com.roster.backned.Controllers.v1;
 
+import com.roster.backned.Dto.AttendanceDetails;
 import com.roster.backned.Dto.ShiftDto;
 import com.roster.backned.Dto.WeekShiftDto;
 import com.roster.backned.Service.ShiftService;
@@ -31,6 +32,11 @@ public class ShiftController {
     @GetMapping("/{id}")
     public ResponseEntity<ShiftDto> getShift(@PathVariable long id) {
         return ResponseEntity.ok().body(shiftService.getShift(id));
+    }
+
+    @GetMapping("/attendance/{id}")
+    public ResponseEntity<List<AttendanceDetails>> getAttendance(@PathVariable long id) {
+        return ResponseEntity.ok().body(shiftService.getAttendance(id));
     }
 
     @GetMapping

@@ -17,6 +17,7 @@ public class Restaurant {
     @Column(updatable = false, unique = true, nullable = false)
     private long id;
     @NotNull
+    @Column(updatable = false, unique = true, nullable = false)
     private String name;
     @NotNull
     private String address;

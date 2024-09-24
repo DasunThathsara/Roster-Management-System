@@ -1,7 +1,6 @@
 package com.roster.backned.Dto;
 
 import com.roster.backned.Enumeration.Duty;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 

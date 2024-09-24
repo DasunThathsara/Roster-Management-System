@@ -2,7 +2,9 @@ package com.roster.backned.Service;
 
 import com.roster.backned.Dto.RestaurantDto;
 import com.roster.backned.Entity.Restaurant;
+import com.roster.backned.Exception.ApiException;
 import com.roster.backned.Exception.NotFoundException;
+import com.roster.backned.Exception.SQLException;
 import com.roster.backned.Repository.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,10 +20,18 @@ public class RestaurantService {
     private final RestaurantRepository restaurantRepository;
 
     public RestaurantDto createRestaurant(RestaurantDto restaurantDto) {
-        Restaurant restaurant = new Restaurant();
-        restaurantDtoToRestaurant(restaurantDto, restaurant);
-        restaurant = restaurantRepository.save(restaurant);
-        return restaurantToRestaurantDto(restaurant);
+        try {
+            Restaurant restaurant = new Restaurant();
+            restaurantDtoToRestaurant(restaurantDto, restaurant);
+            restaurant = restaurantRepository.save(restaurant);
+
+            log.info("Restaurant {} added successfully", restaurant.getId());
+            return restaurantToRestaurantDto(restaurant);
+        } catch (SQLException e) {
+            throw new SQLException(e.getMessage());
+        } catch (Exception e) {
+            throw new ApiException(e.getMessage());
+        }
     }
 
     public RestaurantDto getRestaurant(long id) {
@@ -33,6 +43,8 @@ public class RestaurantService {
         List<Restaurant> restaurants = restaurantRepository.findAll();
         List<RestaurantDto> restaurantDtos = new ArrayList<>();
 
+        if (restaurants.isEmpty()) throw new NotFoundException("Restaurants not found");
+
         for (Restaurant restaurant : restaurants) {
             RestaurantDto restaurantDto = restaurantToRestaurantDto(restaurant);
             restaurantDtos.add(restaurantDto);
@@ -41,16 +53,36 @@ public class RestaurantService {
     }
 
     public RestaurantDto updateRestaurant(RestaurantDto restaurantDto) {
-        Restaurant restaurant = restaurantRepository.findById(restaurantDto.getId()).orElseThrow(() -> new NotFoundException("Restaurant not found"));
-        restaurantDtoToRestaurant(restaurantDto, restaurant);
-        restaurant = restaurantRepository.save(restaurant);
-        return restaurantToRestaurantDto(restaurant);
+        try {
+            Restaurant restaurant = restaurantRepository.findById(restaurantDto.getId()).orElseThrow(() -> new NotFoundException("Restaurant not found"));
+            restaurantDtoToRestaurant(restaurantDto, restaurant);
+            restaurant = restaurantRepository.save(restaurant);
+
+            log.info("Restaurant {} updated successfully", restaurant.getId());
+            return restaurantToRestaurantDto(restaurant);
+        } catch (SQLException e) {
+            throw new SQLException(e.getMessage());
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new ApiException(e.getMessage());
+        }
     }
 
     public RestaurantDto deleteRestaurant(long id) {
-        Restaurant restaurant = restaurantRepository.findById(id).orElseThrow(() -> new NotFoundException("Restaurant not found"));
-        restaurantRepository.delete(restaurant);
-        return restaurantToRestaurantDto(restaurant);
+        try {
+            Restaurant restaurant = restaurantRepository.findById(id).orElseThrow(() -> new NotFoundException("Restaurant not found"));
+            restaurantRepository.delete(restaurant);
+
+            log.info("Restaurant {} deleted successfully", restaurant.getId());
+            return restaurantToRestaurantDto(restaurant);
+        } catch (SQLException e) {
+            throw new SQLException(e.getMessage());
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new ApiException(e.getMessage());
+        }
     }
 
     private static void restaurantDtoToRestaurant(RestaurantDto restaurantDto, Restaurant restaurant) {
