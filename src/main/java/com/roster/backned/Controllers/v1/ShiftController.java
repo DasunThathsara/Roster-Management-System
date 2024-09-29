@@ -20,6 +20,7 @@ import java.util.List;
 @Tag(name = "Shift Controller")
 @RequiredArgsConstructor
 @Validated
+@CrossOrigin
 @Slf4j
 public class ShiftController {
     private final ShiftService shiftService;

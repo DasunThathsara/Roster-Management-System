@@ -18,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Validated
 @Slf4j
+@CrossOrigin
 public class UserController {
     private final UserService userService;
 
