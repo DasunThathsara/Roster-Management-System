@@ -16,11 +16,14 @@ public class Restaurant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false, unique = true, nullable = false)
     private long id;
+
     @NotNull
     @Column(updatable = false, unique = true, nullable = false)
     private String name;
+
     @NotNull
     private String address;
+
     @NotNull
     private String location;
 }

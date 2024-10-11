@@ -2,6 +2,7 @@ package com.roster.backned.Service;
 
 import com.roster.backned.Dto.AttendanceDetails;
 import com.roster.backned.Dto.ShiftDto;
+import com.roster.backned.Dto.ShiftRequestDto;
 import com.roster.backned.Dto.WeekShiftDto;
 import com.roster.backned.Entity.Roster;
 import com.roster.backned.Entity.Shift;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,10 +31,17 @@ public class ShiftService {
     private final UserRepository userRepository;
     private final RosterRepository rosterRepository;
 
-    public ShiftDto createShift(ShiftDto shiftDto) {
+    public ShiftDto createShift(ShiftRequestDto shiftDto) {
         try {
             Shift shift = new Shift();
             shiftDtoToShift(shiftDto, shift);
+
+            shift.setCreatedBy(shiftDto.getCurrentUserId());
+            shift.setModifiedBy(shiftDto.getCurrentUserId());
+
+            shift.setCreatedDate(LocalDateTime.now());
+            shift.setModifiedDate(LocalDateTime.now());
+
             shift = shiftRepository.save(shift);
 
             log.info("Shift {} added successfully", shift.getId());
@@ -64,10 +73,14 @@ public class ShiftService {
         return shiftDtos;
     }
 
-    public ShiftDto updateShift(ShiftDto shiftDto) {
+    public ShiftDto updateShift(ShiftRequestDto shiftDto) {
         try {
             Shift shift = shiftRepository.findById(shiftDto.getId()).orElseThrow(() -> new NotFoundException("Shift not found"));
             shiftDtoToShift(shiftDto, shift);
+
+            shift.setModifiedBy(shiftDto.getCurrentUserId());
+            shift.setModifiedDate(LocalDateTime.now());
+
             shift = shiftRepository.save(shift);
 
             log.info("Shift {} updated successfully", shift.getId());
@@ -97,7 +110,7 @@ public class ShiftService {
         }
     }
 
-    private void shiftDtoToShift(ShiftDto shiftDto, Shift shift) {
+    private void shiftDtoToShift(ShiftRequestDto shiftDto, Shift shift) {
         shift.setDuty(Duty.valueOf(shiftDto.getDuty()));
         shift.setStartTime(shiftDto.getStartTime());
         shift.setEndTime(shiftDto.getEndTime());
@@ -117,6 +130,10 @@ public class ShiftService {
         shiftDto.setEndTime(shift.getEndTime());
         shiftDto.setUserId(shift.getUser().getUserId());
         shiftDto.setRosterId(shift.getRoster().getId());
+        shiftDto.setCreatedBy(shift.getCreatedBy());
+        shiftDto.setModifiedBy(shift.getModifiedBy());
+        shiftDto.setCreatedDate(shift.getCreatedDate());
+        shiftDto.setModifiedDate(shift.getModifiedDate());
 
         return shiftDto;
     }

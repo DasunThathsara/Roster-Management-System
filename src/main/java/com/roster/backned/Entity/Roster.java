@@ -19,6 +19,7 @@ public class Roster {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false, unique = true, nullable = false)
     private long id;
+
     @NotNull
     private LocalDate date;
 

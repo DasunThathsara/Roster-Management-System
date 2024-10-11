@@ -5,12 +5,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Getter
 @Setter
-public class ShiftDto {
+public class ShiftRequestDto {
     private long id;
     @NotEmpty(message = "Duty cannot be empty")
     private String duty;
@@ -27,15 +26,6 @@ public class ShiftDto {
     @NotNull(message = "Roster cannot be empty")
     private long rosterId;
 
-    @NotNull
-    private Long CreatedBy;
-
-    @NotNull
-    private Long ModifiedBy;
-
-    @NotNull
-    private LocalDateTime CreatedDate;
-
-    @NotNull
-    private LocalDateTime ModifiedDate;
+    @NotNull(message = "CurrentUser cannot be empty")
+    private long currentUserId;
 }
