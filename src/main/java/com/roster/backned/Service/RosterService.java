@@ -3,6 +3,7 @@ package com.roster.backned.Service;
 import com.roster.backned.Dto.RosterDto;
 import com.roster.backned.Entity.Restaurant;
 import com.roster.backned.Entity.Roster;
+import com.roster.backned.Entity.User;
 import com.roster.backned.Exception.ApiException;
 import com.roster.backned.Exception.NotFoundException;
 import com.roster.backned.Exception.SQLException;
@@ -21,11 +22,17 @@ import java.util.List;
 public class RosterService {
     private final RosterRepository rosterRepository;
     private final RestaurantRepository restaurantRepository;
+    private final JwtService jwtService;
 
     public RosterDto createRoster(RosterDto rosterDto) {
         try {
+            User currentUser = jwtService.getCurrentUser();
+
             Roster roster = new Roster();
             rosterDtoToRoster(rosterDto, roster);
+            roster.setCreatedBy(currentUser);
+            roster.setUpdatedBy(currentUser);
+
             roster = rosterRepository.save(roster);
 
             log.info("Roster {} added successfully", roster.getId());
@@ -59,8 +66,12 @@ public class RosterService {
 
     public RosterDto updateRoster(RosterDto rosterDto) {
         try {
+            User currentUser = jwtService.getCurrentUser();
+
             Roster roster = rosterRepository.findById(rosterDto.getId()).orElseThrow(() -> new NotFoundException("Roster not found"));
             rosterDtoToRoster(rosterDto, roster);
+            roster.setUpdatedBy(currentUser);
+
             roster = rosterRepository.save(roster);
 
             log.info("Roster {} updated successfully", roster.getId());

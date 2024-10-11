@@ -91,4 +91,15 @@ public class User implements UserDetails {
             setUpdatedBy(this);
         }
     }
+
+    public User(long userId, String firstName, String lastName, String email, String password, String dob, Gender gender, Role role) {
+        this.userId = userId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.dob = LocalDate.parse(dob);
+        this.gender = gender;
+        this.role = role;
+    }
 }

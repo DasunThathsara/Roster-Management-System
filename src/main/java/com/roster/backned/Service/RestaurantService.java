@@ -2,6 +2,7 @@ package com.roster.backned.Service;
 
 import com.roster.backned.Dto.RestaurantDto;
 import com.roster.backned.Entity.Restaurant;
+import com.roster.backned.Entity.User;
 import com.roster.backned.Exception.ApiException;
 import com.roster.backned.Exception.NotFoundException;
 import com.roster.backned.Exception.SQLException;
@@ -18,11 +19,17 @@ import java.util.List;
 @Slf4j
 public class RestaurantService {
     private final RestaurantRepository restaurantRepository;
+    private final JwtService jwtService;
 
     public RestaurantDto createRestaurant(RestaurantDto restaurantDto) {
         try {
+            User currentUser = jwtService.getCurrentUser();
+
             Restaurant restaurant = new Restaurant();
             restaurantDtoToRestaurant(restaurantDto, restaurant);
+            restaurant.setCreatedBy(currentUser);
+            restaurant.setUpdatedBy(currentUser);
+
             restaurant = restaurantRepository.save(restaurant);
 
             log.info("Restaurant {} added successfully", restaurant.getId());
@@ -54,8 +61,12 @@ public class RestaurantService {
 
     public RestaurantDto updateRestaurant(RestaurantDto restaurantDto) {
         try {
+            User currentUser = jwtService.getCurrentUser();
+
             Restaurant restaurant = restaurantRepository.findById(restaurantDto.getId()).orElseThrow(() -> new NotFoundException("Restaurant not found"));
             restaurantDtoToRestaurant(restaurantDto, restaurant);
+            restaurant.setUpdatedBy(currentUser);
+
             restaurant = restaurantRepository.save(restaurant);
 
             log.info("Restaurant {} updated successfully", restaurant.getId());

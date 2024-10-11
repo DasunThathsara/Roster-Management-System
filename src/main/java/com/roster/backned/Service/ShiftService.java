@@ -2,7 +2,6 @@ package com.roster.backned.Service;
 
 import com.roster.backned.Dto.AttendanceDetails;
 import com.roster.backned.Dto.ShiftDto;
-import com.roster.backned.Dto.ShiftRequestDto;
 import com.roster.backned.Dto.WeekShiftDto;
 import com.roster.backned.Entity.Roster;
 import com.roster.backned.Entity.Shift;
@@ -19,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,17 +28,16 @@ public class ShiftService {
     private final ShiftRepository shiftRepository;
     private final UserRepository userRepository;
     private final RosterRepository rosterRepository;
+    private final JwtService jwtService;
 
-    public ShiftDto createShift(ShiftRequestDto shiftDto) {
+    public ShiftDto createShift(ShiftDto shiftDto) {
         try {
+            User currentUser = jwtService.getCurrentUser();
+
             Shift shift = new Shift();
             shiftDtoToShift(shiftDto, shift);
-
-            shift.setCreatedBy(shiftDto.getCurrentUserId());
-            shift.setModifiedBy(shiftDto.getCurrentUserId());
-
-            shift.setCreatedDate(LocalDateTime.now());
-            shift.setModifiedDate(LocalDateTime.now());
+            shift.setCreatedBy(currentUser);
+            shift.setUpdatedBy(currentUser);
 
             shift = shiftRepository.save(shift);
 
@@ -73,13 +70,13 @@ public class ShiftService {
         return shiftDtos;
     }
 
-    public ShiftDto updateShift(ShiftRequestDto shiftDto) {
+    public ShiftDto updateShift(ShiftDto shiftDto) {
         try {
+            User currentUser = jwtService.getCurrentUser();
+
             Shift shift = shiftRepository.findById(shiftDto.getId()).orElseThrow(() -> new NotFoundException("Shift not found"));
             shiftDtoToShift(shiftDto, shift);
-
-            shift.setModifiedBy(shiftDto.getCurrentUserId());
-            shift.setModifiedDate(LocalDateTime.now());
+            shift.setUpdatedBy(currentUser);
 
             shift = shiftRepository.save(shift);
 
@@ -110,7 +107,7 @@ public class ShiftService {
         }
     }
 
-    private void shiftDtoToShift(ShiftRequestDto shiftDto, Shift shift) {
+    private void shiftDtoToShift(ShiftDto shiftDto, Shift shift) {
         shift.setDuty(Duty.valueOf(shiftDto.getDuty()));
         shift.setStartTime(shiftDto.getStartTime());
         shift.setEndTime(shiftDto.getEndTime());
@@ -130,10 +127,6 @@ public class ShiftService {
         shiftDto.setEndTime(shift.getEndTime());
         shiftDto.setUserId(shift.getUser().getUserId());
         shiftDto.setRosterId(shift.getRoster().getId());
-        shiftDto.setCreatedBy(shift.getCreatedBy());
-        shiftDto.setModifiedBy(shift.getModifiedBy());
-        shiftDto.setCreatedDate(shift.getCreatedDate());
-        shiftDto.setModifiedDate(shift.getModifiedDate());
 
         return shiftDto;
     }

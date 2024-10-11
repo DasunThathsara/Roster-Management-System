@@ -14,12 +14,11 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Roster {
+public class Roster extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false, unique = true, nullable = false)
     private long id;
-
     @NotNull
     private LocalDate date;
 

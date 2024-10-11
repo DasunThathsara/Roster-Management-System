@@ -23,6 +23,7 @@ import java.util.List;
 @Slf4j
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
+    private final JwtService jwtService;
 
     @Override
     public UserDetails loadUserByUsername(String username) {
@@ -55,8 +56,12 @@ public class UserService implements UserDetailsService {
 
     public UserDto updateUser(UserDto userDto) {
         try {
+            User currentUser = jwtService.getCurrentUser();
+
             User user = userRepository.findById(userDto.getUserId()).orElseThrow(() -> new NotFoundException("User not found"));
             userDtoToUser(userDto, user);
+            user.setUpdatedBy(currentUser);
+
             user = userRepository.save(user);
 
             log.info("User {} updated successfully", user.getUserId());

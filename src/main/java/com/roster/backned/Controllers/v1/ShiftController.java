@@ -2,7 +2,6 @@ package com.roster.backned.Controllers.v1;
 
 import com.roster.backned.Dto.AttendanceDetails;
 import com.roster.backned.Dto.ShiftDto;
-import com.roster.backned.Dto.ShiftRequestDto;
 import com.roster.backned.Dto.WeekShiftDto;
 import com.roster.backned.Service.ShiftService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,13 +20,12 @@ import java.util.List;
 @Tag(name = "Shift Controller")
 @RequiredArgsConstructor
 @Validated
-@CrossOrigin
 @Slf4j
 public class ShiftController {
     private final ShiftService shiftService;
 
     @PostMapping
-    public ResponseEntity<ShiftDto> addShift(@Valid @RequestBody ShiftRequestDto shiftDto) {
+    public ResponseEntity<ShiftDto> addShift(@Valid @RequestBody ShiftDto shiftDto) {
         return ResponseEntity.status(201).body(shiftService.createShift(shiftDto));
     }
 
@@ -52,7 +50,7 @@ public class ShiftController {
     }
 
     @PutMapping
-    public ResponseEntity<ShiftDto> updateShift(@Valid @RequestBody ShiftRequestDto shiftDto) {
+    public ResponseEntity<ShiftDto> updateShift(@Valid @RequestBody ShiftDto shiftDto) {
         return ResponseEntity.ok().body(shiftService.updateShift(shiftDto));
     }
 
